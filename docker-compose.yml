@@ -1,0 +1,38 @@
+services:
+  # MOTOR DE BASE DE DATOS (Alojará ambas BDs)
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql_server
+    restart: always  # <--- AGREGA ESTO
+    user: root
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=PasswordFuerte123!
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./sql_data:/var/opt/mssql
+    networks:
+      - data-network
+
+  # MOTOR DE SPARK (Hará el ETL)
+  spark-etl:
+    image: jupyter/pyspark-notebook:latest
+    container_name: spark_etl
+    restart: always  # <--- AGREGA ESTO
+    ports:
+      - "8888:8888" # Jupyter
+      - "4040:4040" # Spark UI
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    volumes:
+      - ./work:/home/jovyan/work
+    networks:
+      - data-network
+    depends_on:
+      - sql-server
+
+# Red interna para que se vean entre ellos
+networks:
+  data-network:
+    driver: bridge

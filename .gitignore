@@ -1,0 +1,4 @@
+# Ignorar datos del SQL Server / archivos del sistema
+sql_data/
+*.system/
+
